@@ -1,0 +1,480 @@
+{% extends "core/dashboard_base.html" %}
+{% block title %}Formulario de Docente{% endblock %}
+{% block dashboard_content %}
+<style>
+    .form-container {
+        max-width: 700px;
+        margin: 30px auto;
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+    
+    .form-container h2 {
+        color: #333;
+        margin-bottom: 25px;
+        font-size: 24px;
+        font-weight: 600;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #333;
+        font-weight: 500;
+        font-size: 14px;
+    }
+    .form-group input, .form-group select, .form-group textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border: 2px solid #e1e5e9;
+        border-radius: 6px;
+        font-size: 14px;
+        box-sizing: border-box;
+        font-family: inherit;
+        transition: all 0.3s ease;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    }
+    
+    .form-group input.input-error,
+    .form-group .form-control.input-error {
+        border-color: #dc3545 !important;
+        background-color: #fff5f5;
+    }
+    
+    .form-group input.input-error:focus,
+    .form-group .form-control.input-error:focus {
+        border-color: #dc3545 !important;
+        box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1) !important;
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+    @media (max-width: 600px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+    }
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 30px;
+    }
+    .btn {
+        padding: 10px 24px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s ease;
+        font-weight: 600;
+    }
+    .btn-primary {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: white;
+    }
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #0056b3, #003d82);
+        transform: translateY(-2px);
+    }
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+    .btn-secondary:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+    }
+    .error-message {
+        color: #dc3545;
+        font-size: 12px;
+        margin-top: 4px;
+        display: block;
+        font-weight: 500;
+    }
+</style>
+
+<div class="form-container">
+    <h2>{% if docente %}Editar Docente{% else %}Crear Docente{% endif %}</h2>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}" style="color: #dc3545; font-weight: 600; border: 2px solid #dc3545; text-align: center;">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post" id="docenteForm" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label>Nombre *</label>
+                {{ form.nombre }}
+                {% if form.nombre.errors %}
+                    <span class="error-message">{{ form.nombre.errors.0 }}</span>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label>Apellido *</label>
+                {{ form.apellido }}
+                {% if form.apellido.errors %}
+                    <span class="error-message">{{ form.apellido.errors.0 }}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="form-row">
+            {% if modo == 'editar' %}
+            <div class="form-group">
+                <label>Código Docente</label>
+                <input type="text" class="form-control" value="{{ docente.codigo_docente }}" readonly>
+            </div>
+            {% endif %}
+            <div class="form-group">
+                <label>Email *</label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                    <span class="error-message">{{ form.email.errors.0 }}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Teléfono</label>
+                {{ form.telefono }}
+                {% if form.telefono.errors %}
+                    <span class="error-message">{{ form.telefono.errors.0 }}</span>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label>Especialidad *</label>
+                {{ form.especialidad }}
+                {% if form.especialidad.errors %}
+                    <span class="error-message">{{ form.especialidad.errors.0 }}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Fecha de Ingreso</label>
+                {{ form.fecha_ingreso }}
+                {% if form.fecha_ingreso.errors %}
+                    <span class="error-message">{{ form.fecha_ingreso.errors.0 }}</span>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label>Foto del Docente</label>
+                {{ form.foto }}
+                {% if form.foto.errors %}
+                    <span class="error-message">{{ form.foto.errors.0 }}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Contraseña</label>
+                {{ form.password }}
+                {% if form.password.errors %}
+                    <span class="error-message">{{ form.password.errors.0 }}</span>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label>Confirmar Contraseña</label>
+                {{ form.confirmPassword }}
+                {% if form.confirmPassword.errors %}
+                    <span class="error-message">{{ form.confirmPassword.errors.0 }}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a href="{% url 'listar_docentes' %}" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary">
+                {% if docente %}Actualizar{% else %}Crear{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('docenteForm');
+        const inputs = form.querySelectorAll('input[type="text"], input[type="email"], input[type="number"], input[type="date"], select');
+        const passwordField = form.querySelector('input[name="password"]');
+        const confirmField = form.querySelector('input[name="confirmPassword"]');
+
+        
+        inputs.forEach(input => {
+            // Validar al perder el foco
+            input.addEventListener('blur', function() {
+                validateFieldInRealTime(this);
+            });
+            
+            // Validar mientras se escribe (nombres, apellidos, email)
+            input.addEventListener('input', function() {
+                const value = this.value.trim();
+                const fieldName = this.name;
+                
+                // Solo validar si tiene contenido o es requerido
+                if (value || this.hasAttribute('required')) {
+                    validateFieldInRealTime(this);
+                }
+            });
+            
+            // Limpiar error visual al obtener el foco
+            input.addEventListener('focus', function() {
+                const errorMsg = this.parentElement.querySelector('.dynamic-error');
+                if (errorMsg && !errorMsg.textContent) {
+                    this.classList.remove('input-error');
+                }
+            });
+        });
+
+        // Event listeners para campos de contraseña
+        if (passwordField) {
+            passwordField.addEventListener('blur', function() {
+                validateFieldInRealTime(this);
+            });
+            passwordField.addEventListener('input', function() {
+                validateFieldInRealTime(this);
+            });
+            passwordField.addEventListener('focus', function() {
+                const errorMsg = this.parentElement.querySelector('.dynamic-error');
+                if (errorMsg && !errorMsg.textContent) {
+                    this.classList.remove('input-error');
+                }
+            });
+        }
+
+        if (confirmField) {
+            confirmField.addEventListener('blur', function() {
+                validateFieldInRealTime(this);
+            });
+            confirmField.addEventListener('input', function() {
+                validateFieldInRealTime(this);
+            });
+            confirmField.addEventListener('focus', function() {
+                const errorMsg = this.parentElement.querySelector('.dynamic-error');
+                if (errorMsg && !errorMsg.textContent) {
+                    this.classList.remove('input-error');
+                }
+            });
+        }
+    });
+
+    function validateFieldInRealTime(field) {
+        const value = field.value.trim();
+        const isRequired = field.hasAttribute('required');
+        const fieldName = field.name;
+        
+        // Validar campos requeridos
+        if (isRequired && !value) {
+            field.classList.add('input-error');
+            showFieldError(field, 'Este campo es obligatorio');
+            return false;
+        }
+        
+        // Validar nombre (solo letras, mínimo 2, máximo 3 palabras)
+        if (fieldName === 'nombre' && value) {
+            if (value.length < 2) {
+                field.classList.add('input-error');
+                showFieldError(field, 'Mínimo 2 caracteres');
+                return false;
+            }
+            if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value)) {
+                field.classList.add('input-error');
+                showFieldError(field, 'Solo se permiten letras');
+                return false;
+            }
+            const words = value.split(/\s+/).filter(w => w.length > 0);
+            if (words.length > 3) {
+                field.classList.add('input-error');
+                showFieldError(field, 'Máximo 3 palabras permitidas');
+                return false;
+            } else {
+                field.classList.remove('input-error');
+                removeFieldError(field);
+            }
+        }
+        
+        // Validar apellido (solo letras, mínimo 2, máximo 3 palabras)
+        if (fieldName === 'apellido' && value) {
+            if (value.length < 2) {
+                field.classList.add('input-error');
+                showFieldError(field, 'Mínimo 2 caracteres');
+                return false;
+            }
+            if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value)) {
+                field.classList.add('input-error');
+                showFieldError(field, 'Solo se permiten letras');
+                return false;
+            }
+            const words = value.split(/\s+/).filter(w => w.length > 0);
+            if (words.length > 3) {
+                field.classList.add('input-error');
+                showFieldError(field, 'Máximo 3 palabras permitidas');
+                return false;
+            } else {
+                field.classList.remove('input-error');
+                removeFieldError(field);
+            }
+        }
+        
+        // Validar email
+        if (field.type === 'email' && value) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(value)) {
+                field.classList.add('input-error');
+                showFieldError(field, 'Email inválido');
+                return false;
+            } else {
+                field.classList.remove('input-error');
+                removeFieldError(field);
+            }
+        }
+        
+        // Validar teléfono (solo números si tiene valor)
+        if (fieldName === 'telefono' && value) {
+            const phoneRegex = /^[0-9\-\s\+\(\)]+$/;
+            if (!phoneRegex.test(value)) {
+                field.classList.add('input-error');
+                showFieldError(field, 'Solo se permiten números');
+                return false;
+            } else {
+                field.classList.remove('input-error');
+                removeFieldError(field);
+            }
+        }
+
+        // Validar contraseña
+        if (fieldName === 'password' && value) {
+            if (value.length < 6) {
+                field.classList.add('input-error');
+                showFieldError(field, 'Mínimo 6 caracteres');
+                return false;
+            } else {
+                field.classList.remove('input-error');
+                removeFieldError(field);
+                // Validar coincidencia con confirmPassword si ambas tienen valor
+                const confirmField = document.querySelector('input[name="confirmPassword"]');
+                if (confirmField && confirmField.value) {
+                    validatePasswordMatch();
+                }
+            }
+        }
+
+        // Validar confirmPassword
+        if (fieldName === 'confirmPassword') {
+            if (value || document.querySelector('input[name="password"]').value) {
+                validatePasswordMatch();
+            } else {
+                field.classList.remove('input-error');
+                removeFieldError(field);
+            }
+        }
+        
+        // Si pasó todas las validaciones, remover clase error
+        if (value || !isRequired) {
+            field.classList.remove('input-error');
+        }
+        
+        return true;
+    }
+
+    function validatePasswordMatch() {
+        const passwordField = document.querySelector('input[name="password"]');
+        const confirmField = document.querySelector('input[name="confirmPassword"]');
+        const password = passwordField.value.trim();
+        const confirm = confirmField.value.trim();
+
+        if (!password && !confirm) {
+            confirmField.classList.remove('input-error');
+            removeFieldError(confirmField);
+            return;
+        }
+
+        if (password !== confirm) {
+            confirmField.classList.add('input-error');
+            showFieldError(confirmField, 'Las contraseñas no coinciden');
+        } else {
+            confirmField.classList.remove('input-error');
+            removeFieldError(confirmField);
+        }
+    }
+
+    function showFieldError(field, message) {
+        let errorMsg = field.parentElement.querySelector('.dynamic-error');
+        if (!errorMsg) {
+            errorMsg = document.createElement('span');
+            errorMsg.className = 'error-message dynamic-error';
+            field.parentElement.appendChild(errorMsg);
+        }
+        errorMsg.textContent = message;
+    }
+
+    function removeFieldError(field) {
+        const errorMsg = field.parentElement.querySelector('.dynamic-error');
+        if (errorMsg) {
+            errorMsg.textContent = '';
+        }
+    }
+
+    // Cargar especialidades dinámicamente
+    async function cargarEspecialidadesDinamicamente() {
+        try {
+            const response = await fetch('{% url "api_especialidades" %}');
+            const especialidades = await response.json();
+            
+            // Actualizar selector de especialidades
+            const especialidadesSelect = document.querySelector('select[name="especialidad"]');
+            if (especialidadesSelect) {
+                const valorActual = especialidadesSelect.value;
+                // Limpiar opciones existentes (excepto la primera)
+                while (especialidadesSelect.options.length > 1) {
+                    especialidadesSelect.remove(1);
+                }
+                // Agregar nuevas especialidades
+                especialidades.forEach(esp => {
+                    const option = document.createElement('option');
+                    option.value = esp.nombre;
+                    option.textContent = esp.nombre;
+                    if (esp.nombre === valorActual) {
+                        option.selected = true;
+                    }
+                    especialidadesSelect.appendChild(option);
+                });
+            }
+        } catch (error) {
+            console.log('No hay selector de especialidades en esta página');
+        }
+    }
+
+    // Cargar especialidades al cargar la página
+    document.addEventListener('DOMContentLoaded', function() {
+        cargarEspecialidadesDinamicamente();
+        
+        // Recargar especialidades cada 2 segundos
+        setInterval(function() {
+            cargarEspecialidadesDinamicamente();
+        }, 2000);
+    });
+</script>
+{% endblock %}
+

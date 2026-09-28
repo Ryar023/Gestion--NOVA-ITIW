@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.py[cod]
+.env
+API_REST_ACCESO_OCULTO.txt
+media/
+staticfiles/

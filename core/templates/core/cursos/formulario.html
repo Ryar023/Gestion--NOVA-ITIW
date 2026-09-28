@@ -1,0 +1,345 @@
+{% extends "core/dashboard_base.html" %}
+
+{% block title %}{% if curso %}Editar{% else %}Crear{% endif %} Curso | NOVA GESTION{% endblock %}
+
+{% block dashboard_content %}
+<style>
+    .form-container {
+        max-width: 700px;
+        margin: 30px auto;
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+    
+    .form-container h2 {
+        color: #333;
+        margin-bottom: 25px;
+        font-size: 24px;
+        font-weight: 600;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #333;
+        font-weight: 500;
+        font-size: 14px;
+    }
+    .form-group input, .form-group select, .form-group textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border: 2px solid #e1e5e9;
+        border-radius: 6px;
+        font-size: 14px;
+        box-sizing: border-box;
+        font-family: inherit;
+        transition: all 0.3s ease;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    }
+
+    .form-group input.input-error,
+    .form-group .form-control.input-error {
+        border-color: #dc3545 !important;
+        background-color: #fff5f5;
+    }
+
+    .form-group input.input-error:focus,
+    .form-group .form-control.input-error:focus {
+        border-color: #dc3545 !important;
+        box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1) !important;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+    @media (max-width: 600px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+    }
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 30px;
+    }
+    .btn {
+        padding: 10px 24px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s ease;
+        font-weight: 600;
+    }
+    .btn-primary {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: white;
+    }
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #0056b3, #003d82);
+        transform: translateY(-2px);
+    }
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+    .btn-secondary:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+    }
+    .error-message {
+        color: #dc3545;
+        font-size: 12px;
+        margin-top: 4px;
+        display: block;
+        font-weight: 500;
+    }
+</style>
+
+<div class="form-container">
+    <h2>{% if curso %}Editar Curso{% else %}Crear Curso{% endif %}</h2>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}" style="color: #dc3545; font-weight: 600; border: 2px solid #dc3545; text-align: center;">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post" id="cursoForm">
+        {% csrf_token %}
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label>Nombre *</label>
+                {{ form.nombre }}
+                {% if form.nombre.errors %}
+                    <span class="error-message">{{ form.nombre.errors.0 }}</span>
+                {% endif %}
+            </div>
+            {% if modo == 'editar' %}
+            <div class="form-group">
+                <label>Código *</label>
+                {{ form.codigo }}
+                {% if form.codigo.errors %}
+                    <span class="error-message">{{ form.codigo.errors.0 }}</span>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label>Descripción</label>
+            {{ form.descripcion }}
+            {% if form.descripcion.errors %}
+                <span class="error-message">{{ form.descripcion.errors.0 }}</span>
+            {% endif %}
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Docente *</label>
+                {{ form.docente }}
+                {% if form.docente.errors %}
+                    <span class="error-message">{{ form.docente.errors.0 }}</span>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label>Fecha de Inicio</label>
+                {{ form.fecha_inicio }}
+                {% if form.fecha_inicio.errors %}
+                    <span class="error-message">{{ form.fecha_inicio.errors.0 }}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Fecha de Fin</label>
+                {{ form.fecha_fin }}
+                {% if form.fecha_fin.errors %}
+                    <span class="error-message">{{ form.fecha_fin.errors.0 }}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a href="{% url 'listar_cursos' %}" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary">
+                {% if curso %}Actualizar{% else %}Crear{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('cursoForm');
+        const inputs = form.querySelectorAll('input[type="text"], input[type="email"], input[type="number"], input[type="date"], select, textarea');
+
+        inputs.forEach(input => {
+            input.addEventListener('blur', function() {
+                validateFieldInRealTime(this);
+            });
+            
+            input.addEventListener('input', function() {
+                const value = this.value.trim();
+                if (value || this.hasAttribute('required')) {
+                    validateFieldInRealTime(this);
+                }
+            });
+            
+            input.addEventListener('focus', function() {
+                const errorMsg = this.parentElement.querySelector('.dynamic-error');
+                if (errorMsg && !errorMsg.textContent) {
+                    this.classList.remove('input-error');
+                }
+            });
+        });
+    });
+
+    function validateFieldInRealTime(field) {
+        const value = field.value.trim();
+        const isRequired = field.hasAttribute('required');
+        const fieldName = field.name;
+        
+        if (isRequired && !value) {
+            field.classList.add('input-error');
+            showFieldError(field, 'Este campo es obligatorio');
+            return false;
+        }
+
+        if (fieldName === 'nombre' && value) {
+            if (value.length < 3) {
+                field.classList.add('input-error');
+                showFieldError(field, 'Mínimo 3 caracteres');
+                return false;
+            } else {
+                field.classList.remove('input-error');
+                removeFieldError(field);
+            }
+        }
+
+        if (fieldName === 'codigo' && value) {
+            if (value.length < 2) {
+                field.classList.add('input-error');
+                showFieldError(field, 'Mínimo 2 caracteres');
+                return false;
+            } else {
+                field.classList.remove('input-error');
+                removeFieldError(field);
+            }
+        }
+        
+        if (value || !isRequired) {
+            field.classList.remove('input-error');
+        }
+        
+        return true;
+    }
+
+    function showFieldError(field, message) {
+        let errorMsg = field.parentElement.querySelector('.dynamic-error');
+        if (!errorMsg) {
+            errorMsg = document.createElement('span');
+            errorMsg.className = 'error-message dynamic-error';
+            field.parentElement.appendChild(errorMsg);
+        }
+        errorMsg.textContent = message;
+    }
+
+    function removeFieldError(field) {
+        const errorMsg = field.parentElement.querySelector('.dynamic-error');
+        if (errorMsg) {
+            errorMsg.textContent = '';
+        }
+    }
+
+    // Cargar cursos dinámicamente cuando la página carga
+    async function cargarCursosDinamicamente() {
+        try {
+            const response = await fetch('{% url "api_cursos" %}');
+            const cursos = await response.json();
+            
+            // Actualizar selector de cursos si existe
+            const cursosSelects = document.querySelectorAll('select[name="curso"]');
+            cursosSelects.forEach(select => {
+                const valorActual = select.value;
+                // Limpiar opciones existentes (excepto la primera)
+                while (select.options.length > 1) {
+                    select.remove(1);
+                }
+                // Agregar nuevos cursos
+                cursos.forEach(curso => {
+                    const option = document.createElement('option');
+                    option.value = curso.id;
+                    option.textContent = `${curso.nombre} (${curso.codigo})`;
+                    if (curso.id == valorActual) {
+                        option.selected = true;
+                    }
+                    select.appendChild(option);
+                });
+            });
+        } catch (error) {
+            console.log('No hay selector de cursos en esta página');
+        }
+    }
+
+    // Cargar docentes dinámicamente cuando la página carga
+    async function cargarDocentesDinamicamente() {
+        try {
+            const response = await fetch('{% url "api_docentes" %}');
+            const docentes = await response.json();
+            
+            // Actualizar selector de docentes si existe
+            const docentesSelects = document.querySelectorAll('select[name="docente"]');
+            docentesSelects.forEach(select => {
+                const valorActual = select.value;
+                // Limpiar opciones existentes (excepto la primera)
+                while (select.options.length > 1) {
+                    select.remove(1);
+                }
+                // Agregar nuevos docentes
+                docentes.forEach(docente => {
+                    const option = document.createElement('option');
+                    option.value = docente.id;
+                    option.textContent = docente.nombre;
+                    if (docente.id == valorActual) {
+                        option.selected = true;
+                    }
+                    select.appendChild(option);
+                });
+            });
+        } catch (error) {
+            console.log('No hay selector de docentes en esta página');
+        }
+    }
+
+    // Cargar cursos y docentes al cargar la página
+    document.addEventListener('DOMContentLoaded', function() {
+        cargarCursosDinamicamente();
+        cargarDocentesDinamicamente();
+        
+        // Recargar cada 3 segundos para mantener actualizado
+        setInterval(function() {
+            cargarCursosDinamicamente();
+            cargarDocentesDinamicamente();
+        }, 3000);
+    });
+</script>
+{% endblock %}
+
+

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Iniciar Sesión | NOVA GESTION</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+        <style>
+            body, html { height: 100%; margin: 0; }
+            .auth-container {
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: linear-gradient(135deg, #7b6eea 0%, #6e4cc7 100%);
+            }
+            .auth-card { max-width: 400px; width: 100%; box-shadow: 0 0 24px #0001; border-radius: 16px; background: #fff; padding: 2rem; }
+            .auth-logo { width: 90px; display: block; margin: 0 auto 1rem; border-radius: 50%; background: #fff; box-shadow: 0 2px 8px #0002; }
+            .password-input-wrapper { position: relative; }
+            .password-toggle-btn { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; }
+            .input-error { border-color: #dc3545; }
+            .field-error { color: #dc3545; font-size: 0.9em; }
+            .error-message { color: #dc3545; margin-bottom: 1rem; text-align: center; }
+            .auth-button { width: 100%; }
+            .link-button { background: none; border: none; color: #0d6efd; text-decoration: underline; cursor: pointer; }
+        </style>
+</head>
+<body>
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header text-center mb-4">
+                      <img src="/static/img/logo.png" alt="Logo NOVA GESTION" class="auth-logo" />
+                    <h2>Iniciar Sesión</h2>
+                    <p class="text-muted">Accede a tu cuenta del sistema de gestión escolar</p>
+                </div>
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-danger text-center" style="color: #dc3545; font-weight: 600; border: 2px solid #dc3545;">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+                <form method="post" class="auth-form">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Usuario *</label>
+                        <input type="text" class="form-control" id="username" name="username" required placeholder="Ingresa tu usuario">
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Contraseña *</label>
+                        <div class="password-input-wrapper">
+                            <input type="password" class="form-control" id="password" name="password" required placeholder="Ingresa tu contraseña">
+                            <button type="button" class="password-toggle-btn" onclick="togglePassword()" tabindex="-1">
+                                <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary auth-button">Iniciar Sesión</button>
+                </form>
+                <div class="auth-footer text-center mt-3">
+                    <p>¿No tienes una cuenta? <a href="/solicitar-cuenta/" class="link-button">Solicítala aquí</a></p>
+                </div>
+            </div>
+        </div>
+        <script>
+            function togglePassword() {
+                const pwd = document.getElementById('password');
+                const icon = document.getElementById('eyeIcon');
+                if (pwd.type === 'password') {
+                    pwd.type = 'text';
+                    icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+                } else {
+                    pwd.type = 'password';
+                    icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+                }
+            }
+        </script>
+</body>
+</html>

@@ -1,0 +1,437 @@
+{% extends "core/dashboard_base.html" %}
+
+{% block title %}API REST | NOVA ITIW{% endblock %}
+
+{% block dashboard_content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+    <h2 style="margin: 0; font-size: 28px; font-weight: 600; color: #333;">API REST - Datos del Proyecto</h2>
+    <div style="display: flex; gap: 10px;">
+        <span style="background: #003DA5; color: white; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 12px; cursor: pointer; transition: all 0.3s;" onclick="abrirModal('estudiantes');" onmouseover="this.style.transform='scale(1.05); box-shadow: 0 4px 12px rgba(0, 61, 165, 0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';">
+            👨‍🎓 {{ total_estudiantes }} Est.
+        </span>
+        <span style="background: #00A86B; color: white; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 12px; cursor: pointer; transition: all 0.3s;" onclick="abrirModal('docentes');" onmouseover="this.style.transform='scale(1.05); box-shadow: 0 4px 12px rgba(0, 168, 107, 0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';">
+            👨‍🏫 {{ total_docentes }} Doc.
+        </span>
+        <span style="background: #17a2b8; color: white; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 12px; cursor: pointer; transition: all 0.3s;" onclick="abrirModal('cursos');" onmouseover="this.style.transform='scale(1.05); box-shadow: 0 4px 12px rgba(23, 162, 184, 0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';">
+            📚 {{ total_cursos }} Cur.
+        </span>
+        <span style="background: #28a745; color: white; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 12px; cursor: pointer; transition: all 0.3s;" onclick="abrirModal('notas');" onmouseover="this.style.transform='scale(1.05); box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';">
+            📊 {{ total_notas }} Not.
+        </span>
+        <span style="background: linear-gradient(45deg, #17a2b8, #138496); color: white; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.3s;" onclick="abrirModal('total');" onmouseover="this.style.transform='scale(1.05); box-shadow: 0 4px 12px rgba(23, 162, 184, 0.5)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';">
+            📡 {{ total_estudiantes|add:total_docentes|add:total_cursos|add:total_notas }} Total
+        </span>
+    </div>
+</div>
+
+{% if error_message %}
+    <div style="background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 8px; padding: 16px; margin-bottom: 20px; color: #721c24;">
+        <strong>⚠️ Error:</strong> {{ error_message }}
+    </div>
+{% endif %}
+
+<!-- TABLA 1: ESTUDIANTES -->
+<div style="background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); overflow: hidden; margin-bottom: 30px;">
+    <div style="padding: 20px; background: linear-gradient(135deg, #003DA5 0%, #00A86B 100%); color: white;">
+        <h3 style="margin: 0; font-size: 18px; font-weight: 600;">👨‍🎓 ESTUDIANTES ({{ total_estudiantes }})</h3>
+        <p style="margin: 4px 0 0 0; opacity: 0.9; font-size: 14px;">Datos reales de la base de datos del proyecto</p>
+    </div>
+    
+    <div style="overflow-x: auto;">
+        {% if total_estudiantes > 0 %}
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: #f8f9fa; border-bottom: 2px solid #e9ecef;">
+                        <th style="padding: 16px; text-align: left; font-weight: 600; color: #333;">ID</th>
+                        <th style="padding: 16px; text-align: left; font-weight: 600; color: #333;">Nombres</th>
+                        <th style="padding: 16px; text-align: left; font-weight: 600; color: #333;">Apellidos</th>
+                        <th style="padding: 16px; text-align: left; font-weight: 600; color: #333;">Email</th>
+                        <th style="padding: 16px; text-align: left; font-weight: 600; color: #333;">Código</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody-estudiantes">
+                    <!-- Rellenado por JavaScript -->
+                </tbody>
+            </table>
+        {% else %}
+            <div style="padding: 40px; text-align: center; color: #999;">
+                <p style="margin: 0;">No hay estudiantes registrados</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- TABLA 2: DOCENTES -->
+<div style="background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); overflow: hidden; margin-bottom: 30px;">
+    <div style="padding: 20px; background: linear-gradient(135deg, #00A86B 0%, #003DA5 100%); color: white;">
+        <h3 style="margin: 0; font-size: 18px; font-weight: 600;">👨‍🏫 DOCENTES ({{ total_docentes }})</h3>
+        <p style="margin: 4px 0 0 0; opacity: 0.9; font-size: 14px;">Datos reales de la base de datos del proyecto</p>
+    </div>
+    
+    <div style="overflow-x: auto;">
+        {% if total_docentes > 0 %}
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: #f8f9fa; border-bottom: 2px solid #e9ecef;">
+                        <th style="padding: 16px; text-align: left; font-weight: 600; color: #333;">ID</th>
+                        <th style="padding: 16px; text-align: left; font-weight: 600; color: #333;">Nombre</th>
+                        <th style="padding: 16px; text-align: left; font-weight: 600; color: #333;">Apellido</th>
+                        <th style="padding: 16px; text-align: left; font-weight: 600; color: #333;">Email</th>
+                        <th style="padding: 16px; text-align: left; font-weight: 600; color: #333;">Especialidad</th>
+                        <th style="padding: 16px; text-align: left; font-weight: 600; color: #333;">Código</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody-docentes">
+                    <!-- Rellenado por JavaScript -->
+                </tbody>
+            </table>
+        {% else %}
+            <div style="padding: 40px; text-align: center; color: #999;">
+                <p style="margin: 0;">No hay docentes registrados</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- TABLA 3: CURSOS -->
+<div style="background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); overflow: hidden; margin-bottom: 30px;">
+    <div style="padding: 20px; background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); color: white;">
+        <h3 style="margin: 0; font-size: 18px; font-weight: 600;">📚 CURSOS ({{ total_cursos }})</h3>
+        <p style="margin: 4px 0 0 0; opacity: 0.9; font-size: 14px;">Datos reales de la base de datos del proyecto</p>
+    </div>
+    
+    <div style="overflow-x: auto;">
+        {% if total_cursos > 0 %}
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: #f8f9fa; border-bottom: 2px solid #e9ecef;">
+                        <th style="padding: 16px; text-align: left; font-weight: 600; color: #333;">ID</th>
+                        <th style="padding: 16px; text-align: left; font-weight: 600; color: #333;">Nombre</th>
+                        <th style="padding: 16px; text-align: left; font-weight: 600; color: #333;">Descripción</th>
+                        <th style="padding: 16px; text-align: left; font-weight: 600; color: #333;">Código</th>
+                        <th style="padding: 16px; text-align: left; font-weight: 600; color: #333;">Docente</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody-cursos">
+                    <!-- Rellenado por JavaScript -->
+                </tbody>
+            </table>
+        {% else %}
+            <div style="padding: 40px; text-align: center; color: #999;">
+                <p style="margin: 0;">No hay cursos registrados</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- TABLA 4: NOTAS -->
+<div style="background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); overflow: hidden; margin-bottom: 30px;">
+    <div style="padding: 20px; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white;">
+        <h3 style="margin: 0; font-size: 18px; font-weight: 600;">📊 NOTAS/CALIFICACIONES ({{ total_notas }})</h3>
+        <p style="margin: 4px 0 0 0; opacity: 0.9; font-size: 14px;">Datos reales de la base de datos del proyecto</p>
+    </div>
+    
+    <div style="overflow-x: auto;">
+        {% if total_notas > 0 %}
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: #f8f9fa; border-bottom: 2px solid #e9ecef;">
+                        <th style="padding: 16px; text-align: left; font-weight: 600; color: #333;">ID</th>
+                        <th style="padding: 16px; text-align: left; font-weight: 600; color: #333;">Estudiante</th>
+                        <th style="padding: 16px; text-align: left; font-weight: 600; color: #333;">Curso</th>
+                        <th style="padding: 16px; text-align: center; font-weight: 600; color: #333;">Calificación</th>
+                        <th style="padding: 16px; text-align: left; font-weight: 600; color: #333;">Período</th>
+                        <th style="padding: 16px; text-align: left; font-weight: 600; color: #333;">Fecha</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody-notas">
+                    <!-- Rellenado por JavaScript -->
+                </tbody>
+            </table>
+        {% else %}
+            <div style="padding: 40px; text-align: center; color: #999;">
+                <p style="margin: 0;">No hay notas registradas</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Información del API -->
+<div style="margin-top: 30px; background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); padding: 24px; margin-bottom: 30px;">
+    <h3 style="margin: 0 0 16px 0; font-size: 20px; font-weight: 600; color: #333;">📌 Información del API REST</h3>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 16px;">
+        <div>
+            <h4 style="margin: 0 0 12px 0; color: #28a745; font-weight: 600;">✅ Características</h4>
+            <ul style="margin: 0; padding-left: 20px; color: #666; line-height: 1.8;">
+                <li>Datos REALES del proyecto NOVA ITIW</li>
+                <li>4 tablas principales: Estudiantes, Docentes, Cursos, Notas</li>
+                <li>Autenticación requerida (login_required)</li>
+                <li>Visualización de datos en tiempo real</li>
+                <li>Código color para calificaciones (Verde ≥15, Amarillo ≥11, Rojo <11)</li>
+            </ul>
+        </div>
+        
+        <div>
+            <h4 style="margin: 0 0 12px 0; color: #17a2b8; font-weight: 600;">🔌 Endpoints Disponibles</h4>
+            <ul style="margin: 0; padding-left: 20px; color: #666; line-height: 1.8;">
+                <li>/api/estudiantes/</li>
+                <li>/api/docentes/</li>
+                <li>/api/cursos/</li>
+                <li>/api/notas/</li>
+                <li>/api/especialidades/</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div style="margin-top: 16px; padding: 12px; background: #e7f3ff; border-left: 4px solid #17a2b8; border-radius: 4px;">
+        <p style="margin: 0; color: #0056b3; font-size: 14px;">
+            <strong>📍 URL Oculta:</strong> Esta página está oculta de la navegación pero accesible en <code>/api-rest/</code> 
+            (requiere autenticación)
+        </p>
+    </div>
+</div>
+
+<script>
+// Datos REALES del proyecto enviados desde Django (ya en formato JSON)
+const datosProyecto = {
+    estudiantes: {{ total_estudiantes }},
+    docentes: {{ total_docentes }},
+    cursos: {{ total_cursos }},
+    notas: {{ total_notas }},
+    total: {{ total_estudiantes|add:total_docentes|add:total_cursos|add:total_notas }},
+    
+    // Detalles completos (JSON string convertido a objeto)
+    estudiantesLista: {{ estudiantes|safe }},
+    docentesLista: {{ docentes|safe }},
+    cursosLista: {{ cursos|safe }},
+    notasLista: {{ notas|safe }}
+};
+
+console.log('📊 Datos del proyecto cargados:', datosProyecto);
+
+// Rellenar tablas con datos
+document.addEventListener('DOMContentLoaded', function() {
+    // Rellenar tabla de estudiantes
+    const tbodyEstudiantes = document.getElementById('tbody-estudiantes');
+    if (tbodyEstudiantes && datosProyecto.estudiantesLista && datosProyecto.estudiantesLista.length > 0) {
+        datosProyecto.estudiantesLista.forEach(est => {
+            const fila = document.createElement('tr');
+            fila.style.borderBottom = '1px solid #e9ecef';
+            fila.innerHTML = `
+                <td style="padding: 16px; color: #333; font-weight: 600;">${est.id}</td>
+                <td style="padding: 16px; color: #333;">${est.nombres}</td>
+                <td style="padding: 16px; color: #333;">${est.apellidos}</td>
+                <td style="padding: 16px; color: #666;">${est.email}</td>
+                <td style="padding: 16px; color: #0056b3; font-weight: 600;">${est.codigo_estudiante}</td>
+            `;
+            tbodyEstudiantes.appendChild(fila);
+        });
+    }
+    
+    // Rellenar tabla de docentes
+    const tbodyDocentes = document.getElementById('tbody-docentes');
+    if (tbodyDocentes && datosProyecto.docentesLista && datosProyecto.docentesLista.length > 0) {
+        datosProyecto.docentesLista.forEach(doc => {
+            const fila = document.createElement('tr');
+            fila.style.borderBottom = '1px solid #e9ecef';
+            fila.innerHTML = `
+                <td style="padding: 16px; color: #333; font-weight: 600;">${doc.id}</td>
+                <td style="padding: 16px; color: #333;">${doc.nombre}</td>
+                <td style="padding: 16px; color: #333;">${doc.apellido}</td>
+                <td style="padding: 16px; color: #666;">${doc.email}</td>
+                <td style="padding: 16px; color: #333;">${doc.especialidad}</td>
+                <td style="padding: 16px; color: #0056b3; font-weight: 600;">${doc.codigo_docente}</td>
+            `;
+            tbodyDocentes.appendChild(fila);
+        });
+    }
+    
+    // Rellenar tabla de cursos
+    const tbodyCursos = document.getElementById('tbody-cursos');
+    if (tbodyCursos && datosProyecto.cursosLista && datosProyecto.cursosLista.length > 0) {
+        datosProyecto.cursosLista.forEach(curso => {
+            const fila = document.createElement('tr');
+            fila.style.borderBottom = '1px solid #e9ecef';
+            fila.innerHTML = `
+                <td style="padding: 16px; color: #333; font-weight: 600;">${curso.id}</td>
+                <td style="padding: 16px; color: #333;">${curso.nombre}</td>
+                <td style="padding: 16px; color: #666; font-size: 13px;">${(curso.descripcion || '').substring(0, 50)}</td>
+                <td style="padding: 16px; color: #0056b3; font-weight: 600;">${curso.codigo}</td>
+                <td style="padding: 16px; color: #333;">${curso.docente__nombre || '—'}</td>
+            `;
+            tbodyCursos.appendChild(fila);
+        });
+    }
+    
+    // Rellenar tabla de notas
+    const tbodyNotas = document.getElementById('tbody-notas');
+    if (tbodyNotas && datosProyecto.notasLista && datosProyecto.notasLista.length > 0) {
+        datosProyecto.notasLista.forEach(nota => {
+            const fila = document.createElement('tr');
+            fila.style.borderBottom = '1px solid #e9ecef';
+            const color = nota.calificacion >= 15 ? '#28a745' : nota.calificacion >= 11 ? '#ffc107' : '#dc3545';
+            fila.innerHTML = `
+                <td style="padding: 16px; color: #333; font-weight: 600;">${nota.id}</td>
+                <td style="padding: 16px; color: #333;">${nota.estudiante__nombres}</td>
+                <td style="padding: 16px; color: #333;">${nota.curso__nombre}</td>
+                <td style="padding: 16px; text-align: center; color: #fff; background: ${color}; font-weight: 600; border-radius: 4px;">${nota.calificacion}</td>
+                <td style="padding: 16px; color: #333;">${nota.periodo}</td>
+                <td style="padding: 16px; color: #666; font-size: 13px;">${nota.fecha}</td>
+            `;
+            tbodyNotas.appendChild(fila);
+        });
+    }
+});
+
+function abrirModal(tipo) {
+    let datos = [];
+    let nombreTipo = '';
+    
+    // Seleccionar datos REALES según el tipo
+    if (tipo === 'estudiantes') {
+        datos = datosProyecto.estudiantesLista;
+        nombreTipo = 'ESTUDIANTES';
+    } else if (tipo === 'docentes') {
+        datos = datosProyecto.docentesLista;
+        nombreTipo = 'DOCENTES';
+    } else if (tipo === 'cursos') {
+        datos = datosProyecto.cursosLista;
+        nombreTipo = 'CURSOS';
+    } else if (tipo === 'notas') {
+        datos = datosProyecto.notasLista;
+        nombreTipo = 'NOTAS';
+    }
+    
+    // Validar que haya datos
+    if (!datos || datos.length === 0) {
+        alert('⚠️ No hay datos de ' + nombreTipo + ' para mostrar');
+        console.warn('No hay datos para:', nombreTipo);
+        return;
+    }
+    
+    // Convertir a JSON formateado
+    const jsonFormato = JSON.stringify(datos, null, 2);
+    
+    // Crear contenido HTML para la nueva ventana
+    const htmlContent = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API REST - ${nombreTipo} | NOVA ITIW</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #003DA5 0%, #17a2b8 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        .content {
+            padding: 30px;
+        }
+        .json-display {
+            background: #1e1e1e;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #d4d4d4;
+            max-height: 70vh;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            border-radius: 4px;
+            color: #1565c0;
+            font-size: 14px;
+        }
+        .footer {
+            padding: 20px 30px;
+            background: #f9f9f9;
+            border-top: 1px solid #eee;
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 API REST - ${nombreTipo}</h1>
+            <p>✅ Datos REALES del Proyecto NOVA ITIW</p>
+        </div>
+        <div class="content">
+            <div class="json-display">${jsonFormato.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+            <div class="info">
+                ✅ Total de registros: ${datos.length} | Fuente: Base de datos del proyecto NOVA ITIW
+            </div>
+        </div>
+        <div class="footer">
+            <p>NOVA ITIW © 2025 - Sistema de Gestión de Notas Escolares</p>
+        </div>
+    </div>
+</body>
+</html>
+    `;
+    
+    // Abrir nueva ventana con los datos
+    const newWindow = window.open('', '_blank');
+    newWindow.document.write(htmlContent);
+    newWindow.document.close();
+    
+    // Log en consola
+    console.log('%c📊 ' + nombreTipo + ' (DATOS REALES)', 'color: #003DA5; font-size: 14px; font-weight: bold;');
+    console.log('Total de registros:', datos.length);
+    console.log(datos);
+}
+
+// Mostrar datos en consola cuando se carga la página
+console.log('%c=== 📊 DATOS DEL PROYECTO NOVA ITIW ===', 'color: #003DA5; font-size: 16px; font-weight: bold;');
+console.log('%cEstudiantes: ' + datosProyecto.estudiantes, 'color: #0056b3; font-size: 14px; font-weight: bold;');
+console.log('%cDocentes: ' + datosProyecto.docentes, 'color: #00A86B; font-size: 14px; font-weight: bold;');
+console.log('%cCursos: ' + datosProyecto.cursos, 'color: #17a2b8; font-size: 14px; font-weight: bold;');
+console.log('%cNotas: ' + datosProyecto.notas, 'color: #28a745; font-size: 14px; font-weight: bold;');
+console.log('%cTOTAL DE REGISTROS: ' + datosProyecto.total, 'color: #FF6B6B; font-size: 16px; font-weight: bold; background: #FFF5F5; padding: 10px;');
+console.log('%c💡 Los botones muestran DATOS REALES en nueva ventana', 'color: #FFB800; font-size: 12px; font-weight: bold;');
+</script>
+
+{% endblock %}
+

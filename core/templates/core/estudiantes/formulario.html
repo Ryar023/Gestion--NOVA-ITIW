@@ -1,0 +1,509 @@
+{% extends "core/dashboard_base.html" %}
+{% block title %}Formulario de Estudiante{% endblock %}
+{% block dashboard_content %}
+<style>
+    .form-container {
+        max-width: 700px;
+        margin: 30px auto;
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+    
+    .form-container h2 {
+        color: #333;
+        margin-bottom: 25px;
+        font-size: 24px;
+        font-weight: 600;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #333;
+        font-weight: 500;
+        font-size: 14px;
+    }
+    .form-group input, .form-group select, .form-group textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border: 2px solid #e1e5e9;
+        border-radius: 6px;
+        font-size: 14px;
+        box-sizing: border-box;
+        font-family: inherit;
+        transition: all 0.3s ease;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    }
+    
+    .form-group input.input-error,
+    .form-group .form-control.input-error {
+        border-color: #dc3545 !important;
+        background-color: #fff5f5;
+    }
+    
+    .form-group input.input-error:focus,
+    .form-group .form-control.input-error:focus {
+        border-color: #dc3545 !important;
+        box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1) !important;
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+    @media (max-width: 600px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+    }
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 30px;
+    }
+    .btn {
+        padding: 10px 24px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s ease;
+        font-weight: 600;
+    }
+    .btn-primary {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: white;
+    }
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #0056b3, #003d82);
+        transform: translateY(-2px);
+    }
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+    .btn-secondary:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+    }
+    .error-message {
+        color: #dc3545;
+        font-size: 12px;
+        margin-top: 4px;
+        display: block;
+        font-weight: 500;
+    }
+    
+    .success-message {
+        color: #28a745;
+        font-size: 12px;
+        margin-top: 4px;
+        display: block;
+    }
+    
+    .image-preview {
+        margin-top: 15px;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 6px;
+    }
+    .image-preview img {
+        max-width: 150px;
+        border-radius: 6px;
+        display: block;
+    }
+    .btn-delete-photo {
+        background: #dc3545;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+        margin-top: 10px;
+        transition: background 0.3s ease;
+    }
+    .btn-delete-photo:hover {
+        background: #c82333;
+    }
+</style>
+
+<div class="form-container">
+    <h2>{% if estudiante %}Editar Estudiante{% else %}Crear Estudiante{% endif %}</h2>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}" style="color: #dc3545; font-weight: 600; border: 2px solid #dc3545; text-align: center;">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" id="studentForm">
+        {% csrf_token %}
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Nombres *</label>
+                {{ form.nombres }}
+                {% if form.nombres.errors %}
+                    <span class="error-message">{{ form.nombres.errors.0 }}</span>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label>Apellidos *</label>
+                {{ form.apellidos }}
+                {% if form.apellidos.errors %}
+                    <span class="error-message">{{ form.apellidos.errors.0 }}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Email *</label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                    <span class="error-message">{{ form.email.errors.0 }}</span>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label>Teléfono</label>
+                {{ form.telefono }}
+                {% if form.telefono.errors %}
+                    <span class="error-message">{{ form.telefono.errors.0 }}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="form-row">
+            {% if modo == 'editar' %}
+            <div class="form-group">
+                <label>Código Estudiante</label>
+                <input type="text" class="form-control" value="{{ estudiante.codigo_estudiante }}" readonly>
+            </div>
+            {% endif %}
+            <div class="form-group">
+                <label>Distrito</label>
+                {{ form.distrito }}
+                {% if form.distrito.errors %}
+                    <span class="error-message">{{ form.distrito.errors.0 }}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Fecha de Nacimiento</label>
+                {{ form.fecha_nacimiento }}
+                {% if form.fecha_nacimiento.errors %}
+                    <span class="error-message">{{ form.fecha_nacimiento.errors.0 }}</span>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label>Dirección</label>
+                {{ form.direccion }}
+                {% if form.direccion.errors %}
+                    <span class="error-message">{{ form.direccion.errors.0 }}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if not estudiante %}
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Contraseña *</label>
+                    {{ form.password }}
+                    {% if form.password.errors %}
+                        <span class="error-message">{{ form.password.errors.0 }}</span>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label>Confirmar Contraseña *</label>
+                    {{ form.confirmPassword }}
+                    {% if form.confirmPassword.errors %}
+                        <span class="error-message">{{ form.confirmPassword.errors.0 }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        {% else %}
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Restablecer Contraseña (opcional)</label>
+                    {{ form.password }}
+                    {% if form.password.errors %}
+                        <span class="error-message">{{ form.password.errors.0 }}</span>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label>Confirmar Contraseña (opcional)</label>
+                    {{ form.confirmPassword }}
+                    {% if form.confirmPassword.errors %}
+                        <span class="error-message">{{ form.confirmPassword.errors.0 }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="form-group">
+            <label>Foto de Perfil</label>
+            {{ form.foto }}
+            {% if form.foto.errors %}
+                <span class="error-message">{{ form.foto.errors.0 }}</span>
+            {% endif %}
+            
+            {% if estudiante.foto %}
+            <div class="image-preview" id="existing-photo">
+                <img src="{{ estudiante.foto.url }}" alt="Foto actual">
+                <button type="button" class="btn-delete-photo" onclick="eliminarFotoActual()">Eliminar Foto</button>
+            </div>
+            {% endif %}
+            
+            <div id="live-preview"></div>
+        </div>
+
+        <div class="form-actions">
+            <a href="{% url 'listar_estudiantes' %}" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary">
+                {% if estudiante %}Actualizar{% else %}Crear{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+function eliminarFotoActual() {
+    const existing = document.getElementById('existing-photo');
+    const fileInput = document.querySelector('input[type="file"][name="foto"]');
+    
+    if (existing) {
+        existing.remove();
+    }
+    if (fileInput) {
+        fileInput.value = '';
+    }
+}
+
+// Vista previa en vivo cuando se selecciona una imagen
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.querySelector('input[type="file"][name="foto"]');
+    
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const livePreview = document.getElementById('live-preview');
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    livePreview.innerHTML = `
+                        <div class="image-preview">
+                            <img src="${event.target.result}" alt="Vista previa">
+                            <button type="button" class="btn-delete-photo" onclick="quitarPreview()">Quitar Imagen</button>
+                        </div>
+                    `;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                livePreview.innerHTML = '';
+            }
+        });
+    }
+    
+    // Validaciones en tiempo real
+    const form = document.getElementById('studentForm');
+    const inputs = form.querySelectorAll('input[type="text"], input[type="email"], input[type="password"], input[type="number"], input[type="date"], select');
+    
+    inputs.forEach(input => {
+        // Validar al perder el foco
+        input.addEventListener('blur', function() {
+            validateFieldInRealTime(this);
+        });
+        
+        // Validar mientras se escribe (nombres, apellidos, email)
+        input.addEventListener('input', function() {
+            const value = this.value.trim();
+            const fieldName = this.name;
+            
+            // Solo validar si tiene contenido o es requerido
+            if (value || this.hasAttribute('required')) {
+                validateFieldInRealTime(this);
+            }
+        });
+        
+        // Limpiar error visual al obtener el foco
+        input.addEventListener('focus', function() {
+            const errorMsg = this.parentElement.querySelector('.dynamic-error');
+            if (errorMsg && !errorMsg.textContent) {
+                this.classList.remove('input-error');
+            }
+        });
+    });
+});
+
+function validateFieldInRealTime(field) {
+    const value = field.value.trim();
+    const isRequired = field.hasAttribute('required');
+    const fieldName = field.name;
+    
+    // Validar campos requeridos
+    if (isRequired && !value) {
+        field.classList.add('input-error');
+        showFieldError(field, 'Este campo es obligatorio');
+        return false;
+    }
+    
+    // Validar nombres (solo letras, mínimo 2, máximo 3 palabras)
+    if (fieldName === 'nombres' && value) {
+        if (value.length < 2) {
+            field.classList.add('input-error');
+            showFieldError(field, 'Mínimo 2 caracteres');
+            return false;
+        }
+        if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value)) {
+            field.classList.add('input-error');
+            showFieldError(field, 'Solo se permiten letras');
+            return false;
+        }
+        const words = value.split(/\s+/).filter(w => w.length > 0);
+        if (words.length > 3) {
+            field.classList.add('input-error');
+            showFieldError(field, 'Máximo 3 palabras permitidas');
+            return false;
+        } else {
+            field.classList.remove('input-error');
+            removeFieldError(field);
+        }
+    }
+    
+    // Validar apellidos (solo letras, mínimo 2, máximo 3 palabras)
+    if (fieldName === 'apellidos' && value) {
+        if (value.length < 2) {
+            field.classList.add('input-error');
+            showFieldError(field, 'Mínimo 2 caracteres');
+            return false;
+        }
+        if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value)) {
+            field.classList.add('input-error');
+            showFieldError(field, 'Solo se permiten letras');
+            return false;
+        }
+        const words = value.split(/\s+/).filter(w => w.length > 0);
+        if (words.length > 3) {
+            field.classList.add('input-error');
+            showFieldError(field, 'Máximo 3 palabras permitidas');
+            return false;
+        } else {
+            field.classList.remove('input-error');
+            removeFieldError(field);
+        }
+    }
+    
+    // Validar email
+    if (field.type === 'email' && value) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(value)) {
+            field.classList.add('input-error');
+            showFieldError(field, 'Email inválido');
+            return false;
+        } else {
+            field.classList.remove('input-error');
+            removeFieldError(field);
+        }
+    }
+    
+    // Validar teléfono (solo números si tiene valor)
+    if (fieldName === 'telefono' && value) {
+        const phoneRegex = /^[0-9\-\s\+\(\)]+$/;
+        if (!phoneRegex.test(value)) {
+            field.classList.add('input-error');
+            showFieldError(field, 'Solo se permiten números');
+            return false;
+        } else {
+            field.classList.remove('input-error');
+            removeFieldError(field);
+        }
+    }
+    
+    // Validar contraseña (mínimo 6 caracteres)
+    if (fieldName === 'password' && value) {
+        if (value.length < 6) {
+            field.classList.add('input-error');
+            showFieldError(field, 'Mínimo 6 caracteres');
+            return false;
+        } else {
+            field.classList.remove('input-error');
+            removeFieldError(field);
+            // Validar también confirmPassword si existe
+            const confirmField = document.querySelector('input[name="confirmPassword"]');
+            if (confirmField && confirmField.value) {
+                validateFieldInRealTime(confirmField);
+            }
+        }
+    }
+    
+    // Validar confirmPassword (debe coincidir con password)
+    if (fieldName === 'confirmPassword' && value) {
+        const passwordField = document.querySelector('input[name="password"]');
+        if (passwordField) {
+            if (value !== passwordField.value) {
+                field.classList.add('input-error');
+                showFieldError(field, 'Las contraseñas no coinciden');
+                return false;
+            } else {
+                field.classList.remove('input-error');
+                removeFieldError(field);
+            }
+        }
+    }
+    
+    // Si pasó todas las validaciones, remover clase error
+    if (value || !isRequired) {
+        field.classList.remove('input-error');
+    }
+    
+    return true;
+}
+
+function showFieldError(field, message) {
+    let errorMsg = field.parentElement.querySelector('.dynamic-error');
+    if (!errorMsg) {
+        errorMsg = document.createElement('span');
+        errorMsg.className = 'error-message dynamic-error';
+        field.parentElement.appendChild(errorMsg);
+    }
+    errorMsg.textContent = message;
+}
+
+function removeFieldError(field) {
+    const errorMsg = field.parentElement.querySelector('.dynamic-error');
+    if (errorMsg) {
+        errorMsg.textContent = '';
+    }
+}
+
+function quitarPreview() {
+    const fileInput = document.querySelector('input[type="file"][name="foto"]');
+    const livePreview = document.getElementById('live-preview');
+    
+    if (fileInput) {
+        fileInput.value = '';
+    }
+    if (livePreview) {
+        livePreview.innerHTML = '';
+    }
+}
+</script>
+{% endblock %}
+

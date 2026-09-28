@@ -1,0 +1,406 @@
+{% extends "core/dashboard_base.html" %}
+
+{% block title %}Dashboard | NOVA GESTION{% endblock %}
+
+{% block dashboard_content %}
+<style>
+    .welcome-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 20px;
+    }
+
+    .welcome-header {
+        background: linear-gradient(135deg, #3498db, #2980b9);
+        color: white;
+        padding: 40px;
+        border-radius: 12px;
+        margin-bottom: 40px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .welcome-header h1 {
+        font-size: 32px;
+        margin: 0 0 10px 0;
+        font-weight: 600;
+    }
+
+    .welcome-header p {
+        font-size: 16px;
+        margin: 0;
+        opacity: 0.9;
+    }
+
+    .role-badge {
+        display: inline-block;
+        background: rgba(255,255,255,0.2);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        margin-top: 15px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .modules-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 25px;
+        margin-top: 30px;
+    }
+
+    .module-card {
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        border-left: 5px solid #3498db;
+    }
+
+    .module-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+    }
+
+    .module-card.docente {
+        border-left-color: #e74c3c;
+    }
+
+    .module-card.estudiante {
+        border-left-color: #27ae60;
+    }
+
+    .module-card.admin {
+        border-left-color: #f39c12;
+    }
+
+    .module-icon {
+        font-size: 40px;
+        margin-bottom: 15px;
+    }
+
+    .module-card h3 {
+        font-size: 20px;
+        margin: 0 0 10px 0;
+        color: #2c3e50;
+        font-weight: 600;
+    }
+
+    .module-card p {
+        color: #7f8c8d;
+        font-size: 14px;
+        margin: 0 0 20px 0;
+        line-height: 1.5;
+    }
+
+    .module-links {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .module-link {
+        display: inline-block;
+        padding: 10px 16px;
+        background: #ecf0f1;
+        color: #2c3e50;
+        text-decoration: none;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .module-link:hover {
+        background: #3498db;
+        color: white;
+    }
+
+    .module-card.docente .module-link:hover {
+        background: #e74c3c;
+    }
+
+    .module-card.estudiante .module-link:hover {
+        background: #27ae60;
+    }
+
+    .module-card.admin .module-link:hover {
+        background: #f39c12;
+    }
+
+    .no-access {
+        background: #f8d7da;
+        border: 2px solid #f5c6cb;
+        color: #721c24;
+        padding: 30px;
+        border-radius: 12px;
+        text-align: center;
+        font-weight: 500;
+    }
+
+    .kpi-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .kpi-card {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        border-top: 4px solid #27ae60;
+        text-align: center;
+    }
+
+    .kpi-card.promedio {
+        border-top-color: #3498db;
+    }
+
+    .kpi-card.notas {
+        border-top-color: #e74c3c;
+    }
+
+    .kpi-card.aprobadas {
+        border-top-color: #27ae60;
+    }
+
+    .kpi-card.desaprobadas {
+        border-top-color: #f39c12;
+    }
+
+    .kpi-label {
+        font-size: 12px;
+        color: #7f8c8d;
+        text-transform: uppercase;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        margin-bottom: 10px;
+    }
+
+    .kpi-value {
+        font-size: 36px;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 8px;
+    }
+
+    .kpi-value.text-blue {
+        color: #3498db;
+    }
+
+    .kpi-value.text-green {
+        color: #27ae60;
+    }
+
+    .kpi-value.text-orange {
+        color: #f39c12;
+    }
+
+    .kpi-value.text-red {
+        color: #e74c3c;
+    }
+
+    .kpi-subtext {
+        font-size: 12px;
+        color: #95a5a6;
+    }
+</style>
+
+<div class="welcome-container">
+    <div class="welcome-header">
+        <h1>👋 Bienvenido {{ user.first_name|default:user.username }}</h1>
+        <p>Acceso a NOVA Gestión Académica</p>
+        <span class="role-badge">
+            {% if user.docente and not user.is_superuser %}
+                👨‍🏫 Docente
+            {% elif user.is_staff or user.is_superuser %}
+                🔐 Administrador
+            {% elif user.estudiante %}
+                👨‍🎓 Estudiante
+            {% else %}
+                ❓ Rol No Definido
+            {% endif %}
+        </span>
+    </div>
+
+    <!-- VISTA DOCENTE (PRIORIDAD: debe venir ANTES de administrador) -->
+    {% if user.docente and not user.is_superuser %}
+    <div style="margin-bottom: 20px;">
+        <h2 style="color: #2c3e50; font-size: 24px; margin: 0 0 20px 0; border-bottom: 3px solid #e74c3c; padding-bottom: 10px;">👨‍🏫 Panel Docente - Gestión de Notas Escolares</h2>
+    </div>
+    <!-- KPIs del Docente -->
+    <div class="kpi-container">
+        <div class="kpi-card promedio">
+            <div class="kpi-label">📚 Mis Cursos</div>
+            <div class="kpi-value text-blue">{{ kpi_docente_cursos }}</div>
+            <div class="kpi-subtext">Cursos asignados</div>
+        </div>
+
+        <div class="kpi-card notas">
+            <div class="kpi-label">👥 Estudiantes</div>
+            <div class="kpi-value text-red">{{ kpi_docente_estudiantes }}</div>
+            <div class="kpi-subtext">Estudiantes únicos</div>
+        </div>
+
+        <div class="kpi-card aprobadas">
+            <div class="kpi-label">📋 Calificaciones</div>
+            <div class="kpi-value text-green">{{ kpi_docente_notas }}</div>
+            <div class="kpi-subtext">Notas registradas</div>
+        </div>
+
+        <div class="kpi-card desaprobadas">
+            <div class="kpi-label">📊 Promedio</div>
+            <div class="kpi-value text-orange">{{ kpi_docente_promedio }}</div>
+            <div class="kpi-subtext">Promedio general</div>
+        </div>
+    </div>
+
+    <div class="modules-grid">
+        <div class="module-card docente">
+            <div class="module-icon">📊</div>
+            <h3>Mis Notas</h3>
+            <p>Ver y gestionar las calificaciones de tus estudiantes en los cursos que imparte.</p>
+            <div class="module-links">
+                <a href="{% url 'listar_notas' %}" class="module-link">📋 Ver Notas</a>
+            </div>
+        </div>
+
+        <div class="module-card docente">
+            <div class="module-icon">📚</div>
+            <h3>Mis Cursos</h3>
+            <p>Visualizar información detallada de los cursos que imparte.</p>
+            <div class="module-links">
+                <a href="{% url 'listar_cursos' %}" class="module-link">📋 Ver Cursos</a>
+            </div>
+        </div>
+
+        <div class="module-card docente">
+            <div class="module-icon">📋</div>
+            <h3>Seguridad</h3>
+            <p>Cambia tu contraseña y mantén tu cuenta segura.</p>
+            <div class="module-links">
+                <a href="{% url 'cambiar_password' %}" class="module-link">🔐 Cambiar Contraseña</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- VISTA ADMINISTRADOR -->
+    {% elif user.is_staff or user.is_superuser %}
+    <div style="margin-bottom: 20px;">
+        <h2 style="color: #2c3e50; font-size: 24px; margin: 0 0 20px 0; border-bottom: 3px solid #f39c12; padding-bottom: 10px;">🔐 Panel Administrador - Gestión General</h2>
+    </div>
+    <div class="modules-grid">
+        <div class="module-card admin">
+            <div class="module-icon">👨‍💼</div>
+            <h3>Estudiantes</h3>
+            <p>Gestión completa de estudiantes: crear, editar, eliminar y visualizar información.</p>
+            <div class="module-links">
+                <a href="{% url 'listar_estudiantes' %}" class="module-link">📋 Ver Estudiantes</a>
+                <a href="{% url 'crear_estudiante' %}" class="module-link">➕ Crear Estudiante</a>
+            </div>
+        </div>
+
+        <div class="module-card admin">
+            <div class="module-icon">👨‍🏫</div>
+            <h3>Docentes</h3>
+            <p>Gestión de docentes: crear, editar, eliminar y asignar especialidades.</p>
+            <div class="module-links">
+                <a href="{% url 'listar_docentes' %}" class="module-link">📋 Ver Docentes</a>
+                <a href="{% url 'crear_docente' %}" class="module-link">➕ Crear Docente</a>
+            </div>
+        </div>
+
+        <div class="module-card admin">
+            <div class="module-icon">📚</div>
+            <h3>Cursos</h3>
+            <p>Gestión de cursos: crear, editar, eliminar y asignar docentes.</p>
+            <div class="module-links">
+                <a href="{% url 'listar_cursos' %}" class="module-link">📋 Ver Cursos</a>
+                <a href="{% url 'crear_curso' %}" class="module-link">➕ Crear Curso</a>
+            </div>
+        </div>
+
+        <div class="module-card admin">
+            <div class="module-icon">📊</div>
+            <h3>Notas</h3>
+            <p>Gestión de calificaciones: registrar, actualizar y eliminar notas de estudiantes.</p>
+            <div class="module-links">
+                <a href="{% url 'listar_notas' %}" class="module-link">📋 Ver Notas</a>
+                <a href="{% url 'crear_nota' %}" class="module-link">➕ Crear Nota</a>
+            </div>
+        </div>
+    </div>
+    {% elif user.estudiante %}
+    <div style="margin-bottom: 20px; margin-top: 40px;">
+        <h2 style="color: #2c3e50; font-size: 24px; margin: 0 0 20px 0; border-bottom: 3px solid #27ae60; padding-bottom: 10px;">👨‍🎓 Panel Estudiante - Mi Desempeño Académico</h2>
+    </div>
+    <!-- KPIs del Estudiante -->
+    <div class="kpi-container">
+        <div class="kpi-card promedio">
+            <div class="kpi-label">📊 Promedio General</div>
+            <div class="kpi-value text-blue">{{ kpi_promedio_estudiante }}</div>
+            <div class="kpi-subtext">Tu desempeño académico</div>
+        </div>
+
+        <div class="kpi-card notas">
+            <div class="kpi-label">📋 Total de Notas</div>
+            <div class="kpi-value text-red">{{ kpi_total_notas }}</div>
+            <div class="kpi-subtext">Calificaciones registradas</div>
+        </div>
+
+        <div class="kpi-card aprobadas">
+            <div class="kpi-label">✅ Aprobadas</div>
+            <div class="kpi-value text-green">{{ kpi_aprobadas }}</div>
+            <div class="kpi-subtext">Notas con 12 o más</div>
+        </div>
+
+        <div class="kpi-card desaprobadas">
+            <div class="kpi-label">❌ Desaprobadas</div>
+            <div class="kpi-value text-orange">{{ kpi_desaprobadas }}</div>
+            <div class="kpi-subtext">Notas menores a 12</div>
+        </div>
+    </div>
+
+    <div class="modules-grid">
+        <div class="module-card estudiante">
+            <div class="module-icon">📊</div>
+            <h3>Mis Calificaciones</h3>
+            <p>Visualizar todas tus notas y calificaciones por curso.</p>
+            <div class="module-links">
+                <a href="{% url 'listar_notas' %}" class="module-link">📋 Ver Mis Notas</a>
+            </div>
+        </div>
+
+        <div class="module-card estudiante">
+            <div class="module-icon">📚</div>
+            <h3>Mis Cursos</h3>
+            <p>Ver los cursos en los que estás inscrito y información de tus docentes.</p>
+            <div class="module-links">
+                <a href="{% url 'listar_cursos' %}" class="module-link">📋 Ver Cursos</a>
+            </div>
+        </div>
+
+        <div class="module-card estudiante">
+            <div class="module-icon">👤</div>
+            <h3>Seguridad</h3>
+            <p>Cambia tu contraseña y mantén tu cuenta segura.</p>
+            <div class="module-links">
+                <a href="{% url 'cambiar_password' %}" class="module-link">🔐 Cambiar Contraseña</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- SIN ACCESO -->
+    {% else %}
+    <div class="no-access">
+        <p>❌ No tienes un rol asignado en el sistema. Contacta con el administrador.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

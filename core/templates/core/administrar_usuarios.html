@@ -1,0 +1,39 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Administrar Usuarios{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>👥 Administración de Usuarios</h2>
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">👨‍🎓 Estudiantes</h5>
+                    <p class="card-text">Gestionar estudiantes del sistema</p>
+                    <a href="{% url 'listar_estudiantes' %}" class="btn btn-primary">Ir a Estudiantes</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">👨‍🏫 Docentes</h5>
+                    <p class="card-text">Gestionar docentes del sistema</p>
+                    <a href="{% url 'listar_docentes' %}" class="btn btn-primary">Ir a Docentes</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">🔐 Permisos</h5>
+                    <p class="card-text">Gestionar permisos de acceso</p>
+                    <a href="#" class="btn btn-primary">Ir a Permisos</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

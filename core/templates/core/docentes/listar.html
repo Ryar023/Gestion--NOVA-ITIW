@@ -1,0 +1,280 @@
+{% extends "core/dashboard_base.html" %}
+
+{% block title %}Docentes | NOVA GESTION{% endblock %}
+
+{% block dashboard_content %}
+<style>
+    .docente-management {
+        padding: 24px;
+        background: #f8f9fa;
+    }
+
+    .management-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .management-header h2 {
+        margin: 0;
+        color: #333;
+        font-size: 28px;
+        font-weight: 600;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        flex-wrap: nowrap;
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .header-actions form {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        flex: 1;
+        flex-wrap: wrap;
+    }
+
+    .search-input, .filter-select {
+        padding: 10px 16px;
+        border: 2px solid #e1e5e9;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+
+    .search-input:focus, .filter-select:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    }
+
+    .btn-primary {
+        background: linear-gradient(45deg, #007bff, #0056b3);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 123, 255, 0.3);
+    }
+
+    .docentes-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+        gap: 24px;
+    }
+
+    .docente-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .docente-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+    }
+
+    .docente-header {
+        padding: 20px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .docente-info h3 {
+        margin: 0 0 4px 0;
+        color: #333;
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    .especialidad {
+        margin: 0;
+        color: #007bff;
+        font-weight: 500;
+        font-size: 14px;
+    }
+
+    .docente-details {
+        padding: 16px 20px;
+    }
+
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+
+    .label {
+        font-weight: 500;
+        color: #555;
+    }
+
+    .docente-actions {
+        padding: 16px 20px;
+        border-top: 1px solid #f0f0f0;
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+    }
+
+    .btn-edit, .btn-delete {
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-edit {
+        background: #27ae60;
+        color: white;
+    }
+
+    .btn-edit:hover {
+        background: #229954;
+    }
+
+    .btn-delete {
+        background: #e74c3c;
+        color: white;
+    }
+
+    .btn-delete:hover {
+        background: #c0392b;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #999;
+    }
+
+    .empty-state-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+    }
+
+    @media (max-width: 768px) {
+        .management-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .header-actions {
+            flex-wrap: wrap;
+            width: 100%;
+        }
+
+        .search-input {
+            width: 100%;
+        }
+
+        .docentes-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="docente-management">
+    <div class="management-header">
+        <h2>Gestión de Docentes</h2>
+        <div class="header-actions">
+            <form method="GET" style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+                <input type="text" name="search" placeholder="Buscar docentes..." value="{{ search_term }}" class="search-input" style="width: 250px;">
+                
+                <button type="submit" class="btn-primary">Filtrar</button>
+            </form>
+            {% if user.is_staff and not user.docente %}
+                <a href="{% url 'crear_docente' %}" class="btn-primary">+ Nuevo Docente</a>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    {% if docentes %}
+        <div class="docentes-grid">
+            {% for docente in docentes %}
+            <div class="docente-card">
+                <div class="docente-header">
+                    <div style="display: flex; gap: 12px; align-items: flex-start;">
+                        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #007bff, #0056b3); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 18px; flex-shrink: 0;">
+                            {% if docente.foto %}
+                                <img src="{{ docente.foto.url }}" alt="{{ docente.nombre }} {{ docente.apellido }}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                            {% else %}
+                                {{ docente.nombre|first|upper }}{{ docente.apellido|first|upper }}
+                            {% endif %}
+                        </div>
+                        <div class="docente-info" style="flex: 1;">
+                            <h3>{{ docente.nombre }} {{ docente.apellido }}</h3>
+                            <p class="codigo" style="color: #666; font-weight: 500; margin-top: 4px;">{{ docente.codigo_docente }}</p>
+                            <p class="especialidad">{{ docente.especialidad }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="docente-details">
+                    <div class="detail-row">
+                        <span class="label">Email:</span>
+                        <span>{{ docente.email|default:"No registrado" }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Teléfono:</span>
+                        <span>{{ docente.telefono|default:"No registrado" }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Fecha Ingreso:</span>
+                        <span>{{ docente.fecha_ingreso|date:"d/m/Y"|default:"No registrada" }}</span>
+                    </div>
+                </div>
+
+                <div class="docente-actions">
+                    {% if user.is_staff and not user.docente %}
+                        <a href="{% url 'editar_docente' docente.id %}" class="btn-edit">Editar</a>
+                        <a href="{% url 'eliminar_docente' docente.id %}" class="btn-delete" onclick="return confirm('¿Estás seguro de que deseas eliminar este docente?')">Eliminar</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">📚</div>
+            {% if search_term %}
+                <p>No hay docentes que coincidan con la búsqueda: "{{ search_term }}"</p>
+            {% else %}
+                <p>No hay docentes registrados</p>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+

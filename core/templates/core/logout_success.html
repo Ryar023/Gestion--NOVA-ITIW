@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sesión Cerrada - NOVA ITIW</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .logout-container {
+            background: white;
+            border-radius: 15px;
+            padding: 50px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 450px;
+            animation: slideUp 0.6s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .logout-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: bounce 0.6s ease-out 0.3s both;
+        }
+        
+        @keyframes bounce {
+            0% {
+                transform: scale(0);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        .logout-title {
+            color: #dc3545;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+        
+        .logout-message {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .spinner-border {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 20px;
+        }
+        
+        .loading-text {
+            color: #999;
+            font-size: 14px;
+            margin-top: 15px;
+        }
+        
+        .loading-text a {
+            color: #dc3545;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .loading-text a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="logout-container">
+        <div class="logout-icon">👋</div>
+        <div class="logout-title">¡Hasta Luego!</div>
+        <div class="logout-message">
+            Tu sesión ha sido cerrada correctamente.
+            <br>
+            Esperamos verte pronto.
+        </div>
+        
+        <div class="text-center">
+            <div class="spinner-border text-danger" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <div class="loading-text">
+                Redirigiendo en 3 segundos...
+                <br>
+                Si no eres redirigido, <a href="{% url 'login' %}">haz clic aquí</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Redirigir después de 3 segundos
+        setTimeout(function() {
+            window.location.href = "{% url 'login' %}";
+        }, 3000);
+    </script>
+</body>
+</html>
